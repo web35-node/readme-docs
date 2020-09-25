@@ -14,3 +14,8 @@ To create a react app to go with your new server
     <li>axios</li>
     <li>react-router-dom</li>
 </ul>
+
+npx mrzacsmith
+npx lambda-react lambda-app
+npm start
+

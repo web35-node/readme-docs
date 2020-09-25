@@ -11,7 +11,11 @@
 <a href="#step4">Step 4: Edit your package.json file</a><br>
 <a href="#step5">Step 5: index.js</a><br>
 <a href="#step6">Step 6: server.js</a><br>
-<a href="#step7">Step 7: </a><br>
+<a href="#step7">Step 7: Routers</a><br>
+<a href="#step8">Step 8: Start Database</a><br>
+<a href="#step9">Step 9: knex.js</a><br>
+<a href="#step10">Step 10: Migrations</a><br>
+<a href="#step11">Step 11: Seeds</a><br>
 
 
 <h2 id='step1' style='font-weight:bold; text-decoration:underline'>Step 1:</h2>
@@ -47,6 +51,7 @@
 <li>pg</li>
 <li>express-session</li>
 <li>jsonwebtoken</li>
+<li>morgan = logging </li>
 </ul>
 
 ### optional dependencies
@@ -75,7 +80,8 @@
 <p>The following code should be added to your package.json file in the scripts section</p>
 
 <code>
-"server": "nodemon index.js", <br>
+"server": "nodemon index.js",
+
 "start": "node index.js"
 </code>
 
@@ -117,16 +123,47 @@ const helmet = require("helmet");
 
 const cors = require("cors");
 
+const session = require('express-session');
+
+const knexSessionStore = require('connect-session-knex')(session);
+
+
+// Routers
+
 const (<tips>)Router = require('./routers/(<tips>)Router.js');
 
+// API
 
 const server = express();
 
+const sessionConfig = {
+    name: 'auth',
+    secret: 'authenticateUser',
+    cookie: {
+        maxAge: 1000 * 60 * 60,
+        secure: false,
+        httpOnly: true
+    },
+    resave: false,
+    saveUninitialized: false,
+    store: new knexSessionStore(
+        {
+            knex: require('../database/db-config.js'),
+            tablename: 'sessions',
+            sidfieldname: 'sid',
+            createtable: true,
+            clearInterval: 1000 * 60 * 60
+        }
+    )
+};
+
 server.use(helmet());
+
+server.use(cors());
 
 server.use(express.json());
 
-server.use(cors());
+server.use(session(sessionConfig));
 
 
 server.use('/api/(<tips>)', (<tips>)Router);
@@ -134,20 +171,20 @@ server.use('/api/(<tips>)', (<tips>)Router);
 
 server.use('/', (req, res) => {
     res.send(`
-        <h2>Hey your API is up</h2>
+    <h2>API is working</h2>
     `);
-  });
+});
 
 module.exports = server;
 </code>
 
-<h2 id='step7' style='font-weight:bold; text-decoration:underline'>Step 7:</h2>
+<h2 id='step7' style='font-weight:bold; text-decoration:underline'>Step 7: Routers</h2>
 
 ## Create routers folder and (<routername>)Router.js file(s)
 <ul>
 <li>this file will have the crud operations</li>
 
-<li>do the basics here first then after adding knex, migragte, seed files create the actual functions.</li>
+<li>do the basics here first then after adding knex, migrate, seed files create the actual functions.</li>
 </ul>
 
 ### Enter the following code in each Router file:
@@ -160,7 +197,7 @@ const bcrypt = require('bcryptjs);
 const jwt = require('jsonwebtoken');
 const secrets = require('../auth/secrets');
 
-const Users = require('./userModel.js');
+const Users = require('./models/userModel.js');
 const validate = require('../auth/validate.js');
 
 // all has /api/(<pathoftablename>) in front
@@ -188,7 +225,7 @@ router.delete('/:id', (req, res) => {
 module.exports = router;
 </code>
 
-<h2 id='step8' style='font-weight:bold; text-decoration:underline'>Step 8:</h2>
+<h2 id='step8' style='font-weight:bold; text-decoration:underline'>Step 8: Start Database</h2>
 
 ## create a folder for your database and db-config.js file
 
@@ -204,16 +241,18 @@ const environment = process.env.NODE_ENV || "development";
 module.exports = knex(config[environment]);
 </code>
 
-## in cli 
-knex init =  creates the file needed with some starter information
+<h2 id='step9' style='font-weight:bold; text-decoration:underline'>Step 9: knex.js</h2>
 
-## knexfile.js
+## in terminal
+knex init
+* This creates the file needed with some starter information
 
-staging section can be deleted for now 
+## open the knexfile.js
 
-rename the connection filename to the db name './database/(<tablename>).db3',
+* staging section can be deleted for now 
+* rename the connection filename to the db name './database/(<tablename>).db3',
 
-
+<code>
 module.exports = {
 
   development: {
@@ -251,17 +290,35 @@ module.exports = {
     },
   },
 
+  production: {
+    client: 'pg',
+    connection: pgConnection,
+    pool: {
+      min: 2,
+      max: 10
+    },
+    migrations: {
+      directory: './database/migrations',
+    },
+    seeds: {
+      directory: './database/seeds',
+    },
+  },
+
 };
+</code>
 
+<h2 id='step10' style='font-weight:bold; text-decoration:underline'>Step 10: migrations</h2>
 
-
-## in cli
+## in terminal
 
 knex migrate:make (<yourtablename>)-schema
 
-will create migrations folder and a file with the timestamp_(<yourtablename>)-schema.js
+* will create migrations folder and a file with the timestamp_(<yourtablename>)-schema.js
 
-## (<yourtablename>)-schema.js file
+## open the new js  file
+
+<code>
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('(<tablename>)', tbl => {
       tbl.increments();
@@ -276,21 +333,28 @@ exports.down = function(knex, Promise) {
   return knex.schema.dropTableIfExists('(<tablename>)');
 };
 
-## in cli
-create the table
+</code>
+
+## in terminal
+
 knex migrate:latest
 
-this will create the actual (<tablename>).db3 file in the data folder
+* this will create the actual (<tablename>).db3 file in the data folder
 
-### special note  in cli
+### special note  in terminal
+
 knex migrate:rollback
-this will remove the last migrate:latest change (deleting the table)
+
+* this will remove the last migrate:latest change (deleting the table)
 
 knex migrate:make (<tablename>)-(<newfieldname>)
-this will allow you to create a  new field if the table is already created and makes a new schema type file.  
+
+* this will allow you to create a  new field if the table is already created and makes a new schema type file.  
 
 
 ### example entries for new file
+
+<code>
 exports.up = function(knex, Promise) {
      return knex.schema.table('fruits', tbl => {
         tbl.text('color');
@@ -303,19 +367,24 @@ exports.up = function(knex, Promise) {
  });
  };
 
- above pulls the old table in and add new field when new migrate latest is run
+</code>
 
-## in cli
+ * above pulls the old table in and add new field when new migrate latest is run
+
+<h2 id='step11' style='font-weight:bold; text-decoration:underline'>Step 11: seeds</h2>
+
+## in terminal
 knex seed:make 01-(<tablename>)
 
-creates seed folder and file
+* creates seed folder and file
 
-##  in 01-(<tablename>).js file
-change .del to .truncate
-change the 2 'table_name' to '(<tablename>)
+##  open new js file
 
-remove sample data add your seed data making sure to use the same fields in your schema file.
+* change .del to .truncate
+* change the 2 'table_name' to '(<tablename>)
+* remove sample data add your seed data making sure to use the same fields in your schema file.
 
+<code>
 exports.seed = function(knex) {
   // Deletes ALL existing entries
   return knex('(<tablename>)').truncate()
@@ -329,21 +398,26 @@ exports.seed = function(knex) {
     });
 };
 
-# in cli
+</code>
+
+## in terminal
 knex seed:run
 
-this will add your seed data to the database.  this can be run as many times as you want as it overwrites the data each time.
+* this will add your seed data to the database.  this can be run as many times as you want as it overwrites the data each time.
 
+<h2 id='step12' style='font-weight:bold; text-decoration:underline'>Step 12: Finish Router files</h2>
 
-# (<tablename>)Router.js file
+## (<tablename>)Router.js file
 
-finish filing out the crud operations.  Making sure you have all the requests you anticipate making. 
+* finish filing out the crud operations.  Making sure you have all the requests you anticipate making. 
 
 ### Get requests will have more than 1 most of the time:
-the whole table
-all data pertaining to specific fields could be more than one of these depedning on how you might want to pull the data in the front end
+* the whole table
+* all data pertaining to specific fields could be more than one of these depedning on how you might want to pull the data in the front end
 
-#### sample get requests
+### sample get requests
+
+<code>
 router.get('/', (req, res) => {
     db.select("*")
     .from("(<tablename>)")
@@ -360,10 +434,14 @@ router.get('/:id', (req, res) => {
     .catch((err) => console.log(err));
 });
 
-### Post request
-this will typically only have 1 and it is always to the base router path
+</code>
 
-#### sample post request
+### Post request
+* this will typically only have 1 and it is always to the base router path
+
+### sample post request
+
+<code>
 router.post('/', (req, res) => {
     const <tblnm>Data = req.body;
     db('<tablename>')
@@ -372,11 +450,15 @@ router.post('/', (req, res) => {
     .catch((err) => console.log(err));
 });
 
+</code>
+
 ### Put request
-this also typically will only have 1 as well
+* this also typically will only have 1 as well
 be sure to specify the path to the field that the front end can see -  id is not always the right field as it is not always pulled buy the front end
 
-#### sample put request
+### sample put request
+
+<code>
 router.put('/:id', (req, res) => {
     const {id} = req.params;
     const changes = req.body;
@@ -393,10 +475,15 @@ router.put('/:id', (req, res) => {
     .catch((err) => console.log(err));
 });
 
-### delete request
-in most cases you will only want 1 of these as well to ensure that the wrong information is not removed.  having this pulled buy id if the front end does not show it could be a good idea here.
+</code>
 
-#### sample delete request
+### delete request
+
+* in most cases you will only want 1 of these as well to ensure that the wrong information is not removed.  having this pulled buy id if the front end does not show it could be a good idea here.
+
+### sample delete request
+
+<code>
 router.delete('/:id', (req, res) => {
     const {id} = req.params;
     db('<tablename>')
@@ -411,6 +498,8 @@ router.delete('/:id', (req, res) => {
     })
     .catch((err) => console.log(err));
 });
+
+</code>
 
 # Create Front End
 
