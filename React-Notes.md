@@ -19,3 +19,5 @@ npx mrzacsmith
 npx lambda-react lambda-app
 npm start
 
+To open on different port
+"start": "set PORT=3009 && react-scripts start",
