@@ -119,4 +119,5 @@ Now every time you make a change to your server files while the server is runnin
 a. npm start  
 b. npm run server  
 2. You terminal will look different but your browser will not, unless you make changes to the server files. 
-3. Every time you make a change to any server files you should see your terminal basically refresh and tell you again that it is on port 5000. 
+3. Every time you make a change to any server files you should see your terminal basically refresh and tell you again that it is on port 5000.  
+4. The start line in your package.json file is very important if you want to deploy your app to heroku.
