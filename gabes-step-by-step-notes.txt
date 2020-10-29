@@ -65,3 +65,5 @@ Gabe's Steps to creating a server
     c. make sure it is the right branch
     d. click deploy (it will take longer this time)
 26. when it is done view the app.
+
+You should see the same thing you did locally
