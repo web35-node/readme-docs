@@ -4,7 +4,7 @@ Gabe's Steps to creating a server
 2. create new project folder
 3. cd into new folder
 4. npx gitignore node
-5. initialize a git repo - git initialize
+5. initialize a git repo - git init
     a. command line should now show the branch name
 6. npm init -y (y keeps you from answering questions)
     a. You should now have a package.json file
