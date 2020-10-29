@@ -17,7 +17,7 @@ Gabe's Steps to creating a server
 11. in the index.js file add the following:
     const express= require('express)
     const PORT = process.env.PORT || 3300
-    const server - express()
+    const server = express()
     server.use(express.json())
 
     ser.get('/api', (req, res) => {
@@ -25,7 +25,7 @@ Gabe's Steps to creating a server
     })
 
     server.listen(PORT, () => {
-        console.log('listening on' + PORT)
+        console.log(`listening on` + PORT)
     })
 12. in terminal start server with node index.js
     a. You should see listening on 3300
