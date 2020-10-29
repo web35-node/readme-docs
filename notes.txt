@@ -39,4 +39,29 @@ Gabe's Steps to creating a server
     // ./client/build
     server.use(express.static(path.join(__dirname, 'client/build')))
 
+16. add the following after your first server.get
     // fallback endpoint that sends index.html
+    serer.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, 'client/build', 'index.html'))
+    })
+17. cd client
+18. npm run build (this will create the build folder mentioned above) (this is how you would create a folder that you can upload to a hosting company to host your CRA)
+19. cd .. and then npm start (just the server)
+20. in browser you can now go to http://localhost:3300 and you should see the react app.
+21. in main package.json (not client) add the following script
+    "postinstall": "cd client && npm i && npm run build"
+22. create a repo on github
+    make sure it is public
+    name it
+    and click create
+23. Grab the line in the add repo line
+    git remote add origin <git link>
+    a. you can also do the following:
+        git remote set-url origin <git link>
+24. then push to git
+25. deploy to heroku
+    a. create new app
+    b. find repo via github
+    c. make sure it is the right branch
+    d. click deploy (it will take longer this time)
+26. when it is done view the app.
