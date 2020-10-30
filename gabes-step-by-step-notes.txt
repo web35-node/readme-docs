@@ -10,7 +10,7 @@ Gabe's Steps to creating a server
     a. You should now have a package.json file
 7. edit package.json
     a. "start": "node index.js"
-8. nmp i express
+8. npm i express
 9. touch index.js
 10. code .
     a. should see 4 files and 1 folder
