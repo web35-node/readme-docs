@@ -1,26 +1,26 @@
-#Gabe's Steps to creating a server
+# Gabe's Steps to creating a server
 
 1. `cd` to right folder
 2. create new project folder
 3. `cd` into new folder
 4. `npx gitignore node`
 5. initialize a git repo - `git init`
-    a. command line should now show the branch name
+    ..* command line should now show the branch name
 6. `npm init -y` (y keeps you from answering questions)
-    a. You should now have a package.json file
+    ..* You should now have a package.json file
 7. edit package.json
-    a. `"start": "node index.js"`
+    ..*`"start": "node index.js"`
 8. `npm i express`
 9. touch `index.js`
 10. `code .`
-    a. should see 4 files and 1 folder
+    ..* should see 4 files and 1 folder
 11. in the index.js file add the following:
     ```const express= require('express)
     const PORT = process.env.PORT || 3300
     const server = express()
     server.use(express.json())
 
-    ser.get('/api', (req, res) => {
+    server.get('/api', (req, res) => {
         res.json({ message: 'API is up!!!"})
     })
 
@@ -28,22 +28,22 @@
         console.log(`listening on` + PORT)
     })```
 12. in terminal start server with `node index.js`
-    a. You should see listening on 3300
+    ..* You should see `listening on 3300`
 13. check endpoint
     `Get localhost:3300/api`
-        a. you should see {"message: 'API is up'}
+    ..* you should see `{"message: 'API is up'}`
 14. in terminal `npx create-react-app client`
-    a. this will create a react app in a client folder inside the current git repo
+    ..* this will create a react app in a client folder inside the current git repo
 15. in main index.js (while CRA is running) add the following after the server.use(express.json())
     ```//servering out static assets
     // ./client/build
     server.use(express.static(path.join(__dirname, 'client/build')))```
 
 16. add the following after your first server.get
-   ``` // fallback endpoint that sends index.html
-    serer.get('*', (req, res) => {
+   ` // fallback endpoint that sends index.html
+    server.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, 'client/build', 'index.html'))
-    })```
+    })`
 17. `cd client`
 18. `npm run build` (this will create the build folder mentioned above) (this is how you would create a folder that you can upload to a hosting company to host your CRA)
 19. `cd ..` and then `npm start` (just the server)
